@@ -54,4 +54,31 @@ Project Organization
 
 --------
 
+### Instructions for making a notebook kernel
+
+Install the ipython kernel so we have exactly the same packages and versions!
+
+```
+cd autoxgb
+export VENV_PATH="venv"
+virtualenv -p python3 $VENV_PATH
+source venv/bin/activate
+pip install -e .
+export KERNEL_NAME="autoxgb_kernel"
+export DISPLAY_NAME="AutoXGB Notebook"
+pip install ipykernel
+python3 -m ipykernel install --name $KERNEL_NAME --display-name "$DISPLAY_NAME" --user
+```
+
+Then install some handy extensions:
+
+```
+jupyter labextension install @jupyterlab/toc@0.6.0 --no-build
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38.1 --no-build
+jupyter labextension install plotlywidget@0.11.0 --no-build
+jupyter labextension install @jupyterlab/plotly-extension@1.0.0 --no-build
+jupyter labextension install jupyterlab-chart-editor@1.2.0 --no-build
+jupyter lab build
+```
+
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
