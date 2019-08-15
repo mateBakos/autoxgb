@@ -1,0 +1,1 @@
+from .test_function_square import test_function_square
