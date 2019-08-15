@@ -63,24 +63,6 @@ cd autoxgb
 export VENV_PATH="venv"
 virtualenv -p python3 $VENV_PATH
 source venv/bin/activate
-pip3 install -e .
-export KERNEL_NAME="autoxgb_kernel"
-export DISPLAY_NAME="AutoXGB Notebook"
-pip3 install ipykernel
-python3 -m ipykernel install --name $KERNEL_NAME --display-name "$DISPLAY_NAME" --user
-jupyter labextension install @jupyterlab/toc@0.6.0 --no-build
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38.1 --no-build
-jupyter labextension install plotlywidget@0.11.0 --no-build
-jupyter labextension install @jupyterlab/plotly-extension@1.0.0 --no-build
-jupyter labextension install jupyterlab-chart-editor@1.2.0 --no-build
-jupyter lab build
-```
-option 2:
-```
-cd autoxgb
-export VENV_PATH="venv"
-virtualenv -p python3 $VENV_PATH
-source venv/bin/activate
 pip3 install -r requirements.txt
 export KERNEL_NAME="autoxgb_kernel"
 export DISPLAY_NAME="AutoXGB Notebook"
