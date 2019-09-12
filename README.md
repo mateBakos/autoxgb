@@ -84,7 +84,7 @@ cd autoxgb
 export VENV_yPATH="../autoxgb_venv"
 virtualenv -p python3 $VENV_PATH
 source ../autoxgb_venv/bin/activate
-pip install -e
+<INSTALL COMMAND>
 pip3 install -r requirements.txt
 pip freeze > requirements.txt
 export KERNEL_NAME="autoxgb_kernel"
