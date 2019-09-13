@@ -1,11 +1,9 @@
 import numpy as np
-import pandas as pd
 from hyperopt import hp, tpe, fmin,  STATUS_OK, rand, Trials
 
 
 class Space:
     """Space in one dimension"""
-
     def __init__(self, scope, scale='linear', granularity=None, rounding=None):
         """Initializes a one-dimensional search space"""
         self._scope = scope
@@ -32,29 +30,26 @@ class BayesianOptimization:
         self._max_evals = max_evals
         self._algo = algo
 
-    def hyperopt_lookup_objective(self, name):
-        def objective(params):
-            # real search space
-            real_space = {key: np.linspace(
-                self._search_space[key].scope[0],
-                self._search_space[key].scope[1],
-                self._search_space[key].granularity) for key in self._search_space.keys()}
-            real_params = {key: real_space[key][params[key]] for key in self._search_space.keys()}
-            # import lookup table
-            lookup_table = pd.read_csv('../../data/metadata/raw/' + name + '.csv', index_col=0, header=[0, 1])
-            # get row index
-            idx = lookup_table.index[
-                (lookup_table['hyperparameters']['max_depth'] == real_params['max_depth']) &
-                (lookup_table['hyperparameters']['learning_rate'] == real_params['learning_rate']) &
-                (lookup_table['hyperparameters']['min_child_weight'] == real_params['min_child_weight']) &
-                (lookup_table['hyperparameters']['subsample'] == real_params['subsample']) &
-                (lookup_table['hyperparameters']['num_trees'] == real_params['num_trees'])
-                ]
-            result = lookup_table.iloc[idx]['diagnostics']['mae'].squeeze()
+    def hyperopt_objective(self, unit_params):
 
-            return {'loss': result, 'status': STATUS_OK}
+        # real search space
+        space = self._search_space
+        real_space = {}
+        for param in space.keys():
+            if space[param]._scale == 'linear':
+                real_space[param] = np.linspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
+            if space[param]._scale == 'log':
+                real_space[param] = np.logspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
+            if space[param]._rounding:
+                real_space[param] = np.round(real_space[param], space[param]._rounding)
+        real_params = {key: real_space[key][int(unit_params[key]-1)] for key in self._search_space.keys()}
+        print(real_params)
 
-        return objective
+        # perform evaluation
+        result = self._objective(real_params).squeeze()
+        print(result)
+
+        return {'loss': result, 'status': STATUS_OK}
 
     def run_analysis(self):
         """Runs the Bayesian optimization."""
@@ -70,9 +65,11 @@ class BayesianOptimization:
 
         # Run the hyperopt optimization
         best = fmin(
-            fn=self._objective,
+            fn=self.hyperopt_objective,
             space=hyperopt_space,
             algo=tpe.suggest,
             max_evals=hyperopt_evals,
             trials=trials
         )
+
+        return trials
