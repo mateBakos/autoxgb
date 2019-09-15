@@ -1,5 +1,5 @@
 import pandas as pd
-from src.hyperparameter_analyses.bayesian_optimization import Space
+from src.hyperparameter_analyses.bayesian_optimization import Config
 
 
 def thesis_lookup_objective(name):
@@ -17,17 +17,20 @@ def thesis_lookup_objective(name):
             (lookup_table['hyperparameters']['num_trees'] == params['num_trees'])
         ]
         result = lookup_table.iloc[idx]['diagnostics']['mae'].squeeze()
-        return result
+        walltime = lookup_table.iloc[idx]['diagnostics']['walltime'].squeeze()
+        crossval = lookup_table.iloc[idx]['crossval_diag']['mae'].squeeze()
+
+        return result, walltime, crossval
 
     return objective
 
 
 def thesis_search_space():
     search_space = {
-        'num_trees': Space(scope=[100, 800], granularity=6, rounding=1),
-        'learning_rate': Space(scope=[-2.5, -0.5], granularity=10, scale='log', rounding=13),
-        'max_depth': Space(scope=[5, 20], granularity=8, rounding=0),
-        'min_child_weight': Space(scope=[5, 40], granularity=3, rounding=1),
-        'subsample': Space(scope=[0.5, 1.0], granularity=3, rounding=2)
+        'num_trees': Config(scope=[100, 800], granularity=6, rounding=1),
+        'learning_rate': Config(scope=[-2.5, -0.5], granularity=10, scale='log', rounding=13),
+        'max_depth': Config(scope=[5, 20], granularity=8, rounding=0),
+        'min_child_weight': Config(scope=[5, 40], granularity=3, rounding=1),
+        'subsample': Config(scope=[0.5, 1.0], granularity=3, rounding=2)
     }
     return search_space

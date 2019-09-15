@@ -1,8 +1,9 @@
 import numpy as np
+import pandas as pd
 from hyperopt import hp, tpe, fmin,  STATUS_OK, Trials
 
 
-class Space:
+class Config:
     """Space in one dimension"""
     def __init__(self, scope, scale='linear', granularity=None, rounding=None):
         """Initializes a one-dimensional search space"""
@@ -49,9 +50,9 @@ class BayesianOptimization:
         real_params = {key: real_space[key][int(unit_params[key]-1)] for key in self._search_space.keys()}
 
         # perform evaluation
-        result = self._objective(real_params).squeeze()
+        result, walltime, crossval = self._objective(real_params)
 
-        return {'loss': result, 'status': STATUS_OK}
+        return {'loss': result, 'status': STATUS_OK, 'walltime': walltime, 'crossval': crossval, 'params': real_params}
 
     def run_analysis(self):
         """Runs the Bayesian optimization."""
@@ -74,4 +75,12 @@ class BayesianOptimization:
             trials=trials
         )
 
-        return trials
+        results = pd.DataFrame()
+        for trial in trials.trials:
+            result = trial['result']
+            params = result.pop('params')
+            result = pd.concat([pd.Series(result), pd.Series(params)], keys=['results', 'configs'])
+            results = results.append(result, ignore_index=True)
+        results.columns = pd.MultiIndex.from_tuples(results.columns)
+
+        return results
