@@ -1,5 +1,5 @@
 import numpy as np
-from hyperopt import hp, tpe, fmin,  STATUS_OK, rand, Trials
+from hyperopt import hp, tpe, fmin,  STATUS_OK, Trials
 
 
 class Space:
@@ -30,9 +30,7 @@ class BayesianOptimization:
         self._max_evals = max_evals
         self._algo = algo
 
-    def hyperopt_objective(self, unit_params):
-
-        # real search space
+    def get_numpy_space(self):
         space = self._search_space
         real_space = {}
         for param in space.keys():
@@ -40,14 +38,18 @@ class BayesianOptimization:
                 real_space[param] = np.linspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
             if space[param]._scale == 'log':
                 real_space[param] = np.logspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
-            if space[param]._rounding:
-                real_space[param] = np.round(real_space[param], space[param]._rounding)
+            # if space[param]._rounding:
+            real_space[param] = np.round(real_space[param], space[param]._rounding)
+        return real_space
+
+    def hyperopt_objective(self, unit_params):
+
+        # get real space
+        real_space = self.get_numpy_space()
         real_params = {key: real_space[key][int(unit_params[key]-1)] for key in self._search_space.keys()}
-        print(real_params)
 
         # perform evaluation
         result = self._objective(real_params).squeeze()
-        print(result)
 
         return {'loss': result, 'status': STATUS_OK}
 
