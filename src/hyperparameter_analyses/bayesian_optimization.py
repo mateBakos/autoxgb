@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from hyperopt import hp, tpe, fmin,  STATUS_OK, Trials
+from hyperopt import hp, tpe, fmin,  STATUS_OK, Trials, rand
 
 
 class Config:
@@ -70,7 +70,7 @@ class BayesianOptimization:
         best = fmin(
             fn=self.hyperopt_objective,
             space=hyperopt_space,
-            algo=tpe.suggest,
+            algo=rand.suggest,
             max_evals=hyperopt_evals,
             trials=trials
         )
