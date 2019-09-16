@@ -29,7 +29,11 @@ class BayesianOptimization:
         self._search_space = search_space
         self._objective = objective
         self._max_evals = max_evals
-        self._algo = algo
+        if algo == 'tpe':
+            self._algo = tpe.suggest
+        elif algo == 'random':
+            self._algo = rand.suggest
+
 
     def get_numpy_space(self):
         space = self._search_space
@@ -70,7 +74,7 @@ class BayesianOptimization:
         best = fmin(
             fn=self.hyperopt_objective,
             space=hyperopt_space,
-            algo=rand.suggest,
+            algo=self._algo,
             max_evals=hyperopt_evals,
             trials=trials
         )
