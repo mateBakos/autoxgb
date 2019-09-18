@@ -21,11 +21,12 @@ class Config:
         return self._granularity
 
 
-class BayesianOptimization:
-    """Bayesian optimization"""
+class BayesianHopt:
+    """Bayesian hyperparameter optimization"""
 
-    def __init__(self, search_space, objective, max_evals, algo):
-        """Initializes Bayesian optimization instance."""
+    def __init__(self, identifier, search_space, objective, max_evals, algo):
+        """Initializes Bayesian hyperparameter optimization instance."""
+        self._identifier = identifier
         self._search_space = search_space
         self._objective = objective
         self._max_evals = max_evals
@@ -33,7 +34,11 @@ class BayesianOptimization:
             self._algo = tpe.suggest
         elif algo == 'random':
             self._algo = rand.suggest
+        self.results = None
 
+    @property
+    def identifier(self):
+        return self._identifier
 
     def get_numpy_space(self):
         space = self._search_space
@@ -58,25 +63,25 @@ class BayesianOptimization:
 
         return {'loss': result, 'status': STATUS_OK, 'walltime': walltime, 'crossval': crossval, 'params': real_params}
 
-    def run_analysis(self):
-        """Runs the Bayesian optimization."""
+    def run_bayesian_hopt(self, show_progressbar=True):
+        """Runs the Bayesian hyperparameter optimization."""
 
         # Create trials object to store information on optimization process
         trials = Trials()
 
         # Create the hyperopt format arguments
-        hyperopt_space = {
-            key: hp.quniform(key, 1, self._search_space[key].granularity, 1) for key in list(self._search_space.keys())
-        }
+        space = self._search_space
+        hyperopt_space = {key: hp.quniform(key, 1, space[key].granularity, 1) for key in list(space.keys())}
         hyperopt_evals = self._max_evals # -len(warmstart_configs)
 
         # Run the hyperopt optimization
-        best = fmin(
+        fmin(
             fn=self.hyperopt_objective,
             space=hyperopt_space,
             algo=self._algo,
             max_evals=hyperopt_evals,
-            trials=trials
+            trials=trials,
+            show_progressbar=show_progressbar
         )
 
         results = pd.DataFrame()
@@ -86,5 +91,8 @@ class BayesianOptimization:
             result = pd.concat([pd.Series(result), pd.Series(params)], keys=['results', 'configs'])
             results = results.append(result, ignore_index=True)
         results.columns = pd.MultiIndex.from_tuples(results.columns)
+
+        # add results as attribute to the instance
+        self.results = results
 
         return results

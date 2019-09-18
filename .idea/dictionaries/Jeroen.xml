@@ -2,7 +2,10 @@
   <dictionary name="Jeroen">
     <words>
       <w>crossvalidation</w>
+      <w>hopt</w>
+      <w>hopts</w>
       <w>hyperopt</w>
+      <w>hyperparameter</w>
       <w>hyperparameters</w>
       <w>walltime</w>
     </words>
