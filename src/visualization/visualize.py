@@ -50,3 +50,29 @@ def compare_search_performance(results_dict, xaxis='iterations'):
         fig.add_trace(go.Scatter(x=idx, y=rolling_min, mode='lines', name=analysis))
 
     fig.show()
+
+
+def visualize_hopt_exp_results(hopt_exp_results, show='mean'):
+
+    fig = go.Figure()
+
+    # transform to best so far dataframe
+    form = hopt_exp_results.unstack(0).unstack(1)
+    best_lists = [[form.iloc[j][:i + 1].min() for i in range(8)] for j in range(len(form))]
+    best_so_far = pd.DataFrame(data=best_lists, columns=form.columns, index=form.index).stack(0).unstack([0, 2])
+
+    if show == 'mean':
+        data = best_so_far.mean().unstack(0)
+
+    if show == 'rank':
+        data = best_so_far.stack(1).rank(axis=1).mean(level='iterations')
+
+    for identifier in hopt_exp_results.columns.levels[0].values:
+        fig.add_trace(go.Scatter(y=data[identifier], name=identifier))
+
+    fig.update_layout(
+        xaxis=go.layout.XAxis(title='Iterations'),
+        yaxis=go.layout.YAxis(title=show)
+    )
+
+    fig.show()
