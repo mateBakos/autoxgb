@@ -29,7 +29,7 @@ class BayesianHopt:
         self._identifier = identifier
         self._search_space = search_space
         self._objective = objective
-        self._max_evals = max_evals
+        self.max_evals = max_evals
         if algo == 'tpe':
             self._algo = tpe.suggest
         elif algo == 'random':
@@ -48,7 +48,6 @@ class BayesianHopt:
                 real_space[param] = np.linspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
             if space[param]._scale == 'log':
                 real_space[param] = np.logspace(space[param].scope[0], space[param].scope[1], space[param].granularity)
-            # if space[param]._rounding:
             real_space[param] = np.round(real_space[param], space[param]._rounding)
         return real_space
 
@@ -72,7 +71,7 @@ class BayesianHopt:
         # Create the hyperopt format arguments
         space = self._search_space
         hyperopt_space = {key: hp.quniform(key, 1, space[key].granularity, 1) for key in list(space.keys())}
-        hyperopt_evals = self._max_evals # -len(warmstart_configs)
+        hyperopt_evals = self.max_evals # -len(warmstart_configs)
 
         # Run the hyperopt optimization
         fmin(
