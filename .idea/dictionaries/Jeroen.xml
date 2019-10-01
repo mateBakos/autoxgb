@@ -2,6 +2,7 @@
   <dictionary name="Jeroen">
     <words>
       <w>crossvalidation</w>
+      <w>heatmap</w>
       <w>hopt</w>
       <w>hopts</w>
       <w>hyperopt</w>

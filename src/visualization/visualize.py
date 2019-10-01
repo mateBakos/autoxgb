@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 def visualize_search_performance(results, xaxis='iterations', all_losses=False, crossvalidation=False):
@@ -96,5 +97,23 @@ def visualize_hopt_exp_perf_distribution(hopt_exp_results, iterations):
         ))
 
     fig.update_layout(yaxis=go.layout.YAxis(title='MAE'), showlegend=False)
+
+    fig.show()
+
+
+def visualize_search_performance_heatmap(hopt_exp_results):
+
+    identifiers = hopt_exp_results.columns.levels[0]
+
+    fig = make_subplots(rows=1, cols=len(identifiers), subplot_titles=identifiers)
+
+    for j, identifier in enumerate(identifiers):
+        data = hopt_exp_results[identifier]
+        x = list(data.columns.values) * len(data.index)
+        y = data.values.flatten()
+        fig.add_trace(go.Histogram2dContour(x=x, y=y, name=identifier), row=1, col=j + 1)
+
+    fig.update_yaxes(title_text="Mean squared error")
+    fig.update_xaxes(title_text="Iterations")
 
     fig.show()
