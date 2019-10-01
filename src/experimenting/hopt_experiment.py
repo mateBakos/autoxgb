@@ -1,4 +1,5 @@
 import pandas as pd
+from tqdm import tqdm
 
 
 class HoptExperiment:
@@ -9,7 +10,7 @@ class HoptExperiment:
 
     def run_hopt_experiment(self):
 
-        results = [[hopt.run_bayesian_hopt() for i in range(self._iterations)] for hopt in self._hopts]
+        results = [[hopt.run_bayesian_hopt(show_progressbar=False) for i in tqdm(range(self._iterations), desc=hopt.identifier + ' duplicates')] for hopt in self._hopts]
 
         df = [item['results']['loss'] for sublist in results for item in sublist]
         indices = pd.MultiIndex.from_product(

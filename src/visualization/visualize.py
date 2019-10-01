@@ -58,7 +58,7 @@ def visualize_hopt_exp_results(hopt_exp_results, show='mean'):
 
     # transform to best so far dataframe
     form = hopt_exp_results.unstack(0).unstack(1)
-    best_lists = [[form.iloc[j][:i + 1].min() for i in range(8)] for j in range(len(form))]
+    best_lists = [[form.iloc[j][:i + 1].min() for i in form.columns] for j in range(len(form))]
     best_so_far = pd.DataFrame(data=best_lists, columns=form.columns, index=form.index).stack(0).unstack([0, 2])
 
     if show == 'mean':
