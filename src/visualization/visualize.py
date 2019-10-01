@@ -76,3 +76,25 @@ def visualize_hopt_exp_results(hopt_exp_results, show='mean'):
     )
 
     fig.show()
+
+
+def visualize_hopt_exp_perf_distribution(hopt_exp_results, iterations):
+
+    fig = go.Figure()
+
+    data = hopt_exp_results.stack(0)[iterations].unstack()
+
+    for identifier in hopt_exp_results.columns.levels[0]:
+        fig.add_trace(go.Box(
+            y=data[identifier],
+            name=identifier,
+            boxpoints='all',
+            jitter=0.5,
+            whiskerwidth=0.2,
+            marker_size=3,
+            line_width=1
+        ))
+
+    fig.update_layout(yaxis=go.layout.YAxis(title='MAE'), showlegend=False)
+
+    fig.show()
